@@ -6,7 +6,7 @@
 /*   By: hakim <hakim@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/27 16:54:04 by hakim             #+#    #+#             */
-/*   Updated: 2022/03/27 16:54:05 by hakim            ###   ########.fr       */
+/*   Updated: 2022/03/28 20:01:19 by hakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ int	free_all(t_info *info, t_philo **philos)
 {
 	int	i;
 
+	usleep(1000);
 	i = -1;
 	while (++i < info->num_of_philos)
 	{
@@ -47,12 +48,16 @@ int	free_all(t_info *info, t_philo **philos)
 			pthread_mutex_destroy(&info->forks[i]);
 		}
 	}
+	if (pthread_mutex_destroy(&info->print) != 0)
+	{
+		pthread_mutex_unlock(&info->print);
+		pthread_mutex_destroy(&info->print);
+	}
 	if (pthread_mutex_destroy(&info->deadcheck) != 0)
 	{
 		pthread_mutex_unlock(&info->deadcheck);
 		pthread_mutex_destroy(&info->deadcheck);
 	}
-	pthread_mutex_destroy(&info->print);
 	free(*philos);
 	free(info->forks);
 	return (SUCCESS);

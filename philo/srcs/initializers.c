@@ -76,5 +76,7 @@ int	init_forks(t_info *info)
 			return (MUTEX_INIT_FAILURE);
 	if (pthread_mutex_init(&info->print, NULL) != 0)
 		return (MUTEX_INIT_FAILURE);
+	if (pthread_mutex_init(&info->deadcheck, NULL) != 0)
+		return (MUTEX_INIT_FAILURE);
 	return (SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: hakim <hakim@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/27 22:14:31 by hakim             #+#    #+#             */
-/*   Updated: 2022/03/27 22:14:36 by hakim            ###   ########.fr       */
+/*   Updated: 2022/03/28 20:02:06 by hakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,9 @@ void	declare(t_status status, t_philo *philo)
 	else if (status == THINK && philo->info->casualty == 0)
 		printf("%ld %d is thinking\n", timestamp, philo->backnumber);
 	else if (status == DEAD && philo->info->casualty == 0)
-	{
 		printf("%ld %d is died\n", timestamp, philo->backnumber);
-		return ;
-	}
-	pthread_mutex_unlock(&philo->info->print);
 	pthread_mutex_unlock(&philo->info->deadcheck);
+	pthread_mutex_unlock(&philo->info->print);
 }
 
 static void	therefore_i_eat(t_philo *philo)
