@@ -24,7 +24,9 @@ void	roll_call(t_info *info, t_philo **philos)
 		{
 			(*philos)[index].is_alive = FALSE;
 			declare(DEAD, &(*philos)[index]);
+			pthread_mutex_lock(&info->deadcheck);
 			info->casualty += 1;
+			pthread_mutex_unlock(&info->deadcheck);
 			pthread_mutex_unlock(&info->forks[(*philos)[index].left_fork]);
 			pthread_mutex_unlock(&info->forks[(*philos)[index].right_fork]);
 			return ;
@@ -41,7 +43,7 @@ void	eye_of_beholder(t_info *info, t_philo **philos)
 	while (1)
 	{
 		roll_call(info, philos);
-		if (info->casualty > 0)
+		if (anyone_dead(info) == DEAD)
 		{
 			printf("Sadly, we failed to fed philosophers. One is dead!\n");
 			return ;

@@ -17,21 +17,23 @@ void	declare(t_status status, t_philo *philo)
 	long	timestamp;
 
 	pthread_mutex_lock(&philo->info->print);
+	pthread_mutex_lock(&philo->info->deadcheck);
 	timestamp = get_current_time() - philo->info->time_of_start;
-	if (status == FORK)
+	if (status == FORK && philo->info->casualty == 0)
 		printf("%ld %d has taken a fork\n", timestamp, philo->backnumber);
-	else if (status == EAT)
+	else if (status == EAT && philo->info->casualty == 0)
 		printf("%ld %d is eating\n", timestamp, philo->backnumber);
-	else if (status == SLEEP)
+	else if (status == SLEEP && philo->info->casualty == 0)
 		printf("%ld %d is sleeping\n", timestamp, philo->backnumber);
-	else if (status == THINK)
+	else if (status == THINK && philo->info->casualty == 0)
 		printf("%ld %d is thinking\n", timestamp, philo->backnumber);
-	else
+	else if (status == DEAD && philo->info->casualty == 0)
 	{
 		printf("%ld %d is died\n", timestamp, philo->backnumber);
 		return ;
 	}
 	pthread_mutex_unlock(&philo->info->print);
+	pthread_mutex_unlock(&philo->info->deadcheck);
 }
 
 static void	therefore_i_eat(t_philo *philo)
@@ -68,10 +70,10 @@ void	*life_of_philosophers(void *arg)
 		kill_time(philo->info->time_to_sleep - 1);
 	while (philo->eatcount != philo->info->finish_line)
 	{
-		if (philo->info->casualty > 0)
+		if (anyone_dead(philo->info) == DEAD)
 			return (NULL);
 		therefore_i_eat(philo);
-		if (philo->info->casualty > 0 || philo->is_alive == FALSE)
+		if (anyone_dead(philo->info) == DEAD || philo->is_alive == FALSE)
 			return (NULL);
 		therefore_i_think(philo);
 		therefore_i_sleep(philo);
