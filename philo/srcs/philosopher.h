@@ -33,8 +33,10 @@ typedef struct s_info
 	int				finish_line;
 	long			time_of_start;
 	int				casualty;
+	int 			everyone_satisfied;
 	pthread_mutex_t	print;
 	pthread_mutex_t	deadcheck;
+	pthread_mutex_t	satisfied_swine;
 	pthread_mutex_t	*forks;
 }	t_info;
 
@@ -81,6 +83,8 @@ int		can_be_atoied(char *str);
 int		err_msg(t_failure failure);
 int		free_all(t_info *info, t_philo **philos);
 int		anyone_dead(t_info *info);
+int		anyone_satisfied(int eatcount, t_info *info);
+int		everyone_satisfied(t_info *info);
 long	get_current_time(void);
 void	kill_time(long time);
 void	ft_putendl_fd(char *s, int fd);

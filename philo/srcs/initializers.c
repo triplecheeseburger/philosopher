@@ -36,6 +36,7 @@ int	init_info(int ac, char **av, t_info *info)
 	if (info->time_of_start == GETTIME_FAILURE)
 		return (GETTIME_FAILURE);
 	info->casualty = 0;
+	info->everyone_satisfied = 0;
 	return (SUCCESS);
 }
 
@@ -77,6 +78,8 @@ int	init_forks(t_info *info)
 	if (pthread_mutex_init(&info->print, NULL) != 0)
 		return (MUTEX_INIT_FAILURE);
 	if (pthread_mutex_init(&info->deadcheck, NULL) != 0)
+		return (MUTEX_INIT_FAILURE);
+	if (pthread_mutex_init(&info->satisfied_swine, NULL) != 0)
 		return (MUTEX_INIT_FAILURE);
 	return (SUCCESS);
 }

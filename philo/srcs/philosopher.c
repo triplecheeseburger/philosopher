@@ -52,10 +52,13 @@ void	eye_of_beholder(t_info *info, t_philo **philos)
 		count = 0;
 		while (index < info->num_of_philos)
 		{
-			if ((*philos)[index++].eatcount == info->finish_line)
+			if (anyone_satisfied((*philos)[index++].eatcount, info) == TRUE)
 				++count;
 			if (count == info->num_of_philos)
 			{
+				pthread_mutex_lock(&info->satisfied_swine);
+				info->everyone_satisfied += 1;
+				pthread_mutex_unlock(&info->satisfied_swine);
 				printf("Finally, we fed all philosophers %d meals. Hurray!\n", \
 				info->finish_line);
 				return ;
@@ -105,5 +108,6 @@ int	main(int ac, char **av)
 		return (err_msg(status));
 	eye_of_beholder(&info, &philos);
 	free_all(&info, &philos);
+	system("leaks philo");
 	return (0);
 }

@@ -34,6 +34,15 @@ void	kill_time(long time)
 		usleep(50);
 }
 
+static void	check_and_destroy_mutex(pthread_mutex_t *mutex)
+{
+	if (pthread_mutex_destroy(mutex) != 0)
+	{
+		pthread_mutex_unlock(mutex);
+		pthread_mutex_destroy(mutex);
+	}
+}
+
 int	free_all(t_info *info, t_philo **philos)
 {
 	int	i;
@@ -41,36 +50,12 @@ int	free_all(t_info *info, t_philo **philos)
 	usleep(1000);
 	i = -1;
 	while (++i < info->num_of_philos)
-	{
-		if (pthread_mutex_destroy(&info->forks[i]) != 0)
-		{
-			pthread_mutex_unlock(&info->forks[i]);
-			pthread_mutex_destroy(&info->forks[i]);
-		}
-	}
-	if (pthread_mutex_destroy(&info->print) != 0)
-	{
-		pthread_mutex_unlock(&info->print);
-		pthread_mutex_destroy(&info->print);
-	}
-	if (pthread_mutex_destroy(&info->deadcheck) != 0)
-	{
-		pthread_mutex_unlock(&info->deadcheck);
-		pthread_mutex_destroy(&info->deadcheck);
-	}
+		check_and_destroy_mutex(&info->forks[i]);
+	check_and_destroy_mutex(&info->print);
+	check_and_destroy_mutex(&info->deadcheck);
+	check_and_destroy_mutex(&info->satisfied_swine);
 	free(*philos);
 	free(info->forks);
 	return (SUCCESS);
 }
 
-int	anyone_dead(t_info *info)
-{
-	pthread_mutex_lock(&info->deadcheck);
-	if (info->casualty > 0)
-	{
-		pthread_mutex_unlock(&info->deadcheck);
-		return (DEAD);
-	}
-	pthread_mutex_unlock(&info->deadcheck);
-	return (THINK);
-}

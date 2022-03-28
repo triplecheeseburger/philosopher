@@ -17,6 +17,7 @@ NAME = philo
 SRCS =	srcs/philosopher.c \
 		srcs/life_of_philosophers.c \
         srcs/initializers.c \
+        srcs/mutex_clicker.c \
         srcs/free_time.c \
         srcs/utils.c
 OBJS = $(SRCS:%.c=%.o)
