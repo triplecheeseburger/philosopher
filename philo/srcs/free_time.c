@@ -34,11 +34,11 @@ void	kill_time(long time)
 		usleep(50);
 }
 
-int	free_all(t_info *info, t_philo **philos)
+int	free_all(t_info *info, t_philo *philos)
 {
 	int	i;
 
-	usleep(1000);
+//	usleep(1000);
 	i = -1;
 	while (++i < info->num_of_philos)
 	{
@@ -58,8 +58,9 @@ int	free_all(t_info *info, t_philo **philos)
 		pthread_mutex_unlock(&info->deadcheck);
 		pthread_mutex_destroy(&info->deadcheck);
 	}
-	free(*philos);
 	free(info->forks);
+	usleep(1000);
+	free(philos);
 	return (SUCCESS);
 }
 

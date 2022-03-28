@@ -104,6 +104,7 @@ int	main(int ac, char **av)
 	if (status != SUCCESS)
 		return (err_msg(status));
 	eye_of_beholder(&info, &philos);
-	free_all(&info, &philos);
+	free_all(&info, philos);
+	system("leaks philo");
 	return (0);
 }

@@ -79,7 +79,7 @@ int		init_forks(t_info *info);
 int		ft_atoi(const char *str);
 int		can_be_atoied(char *str);
 int		err_msg(t_failure failure);
-int		free_all(t_info *info, t_philo **philos);
+int		free_all(t_info *info, t_philo *philos);
 int		anyone_dead(t_info *info);
 long	get_current_time(void);
 void	kill_time(long time);
