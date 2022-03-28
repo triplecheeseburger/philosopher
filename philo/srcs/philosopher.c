@@ -35,30 +35,32 @@ void	roll_call(t_info *info, t_philo **philos)
 	}
 }
 
-void	eye_of_beholder(t_info *info, t_philo **philos)
+void	*eye_of_beholder(void *arg)
 {
+	t_philo	**philos;
 	int	index;
 	int	count;
 
+	philos = (t_philo **)arg;
 	while (1)
 	{
-		roll_call(info, philos);
-		if (anyone_dead(info) == DEAD)
+		roll_call(philos[0]->info, philos);
+		if (anyone_dead(philos[0]->info) == DEAD)
 		{
 			printf("Sadly, we failed to fed philosophers. One is dead!\n");
-			return ;
+			return (NULL);
 		}
 		index = 0;
 		count = 0;
-		while (index < info->num_of_philos)
+		while (index < philos[0]->info->num_of_philos)
 		{
-			if ((*philos)[index++].eatcount == info->finish_line)
+			if ((*philos)[index++].eatcount == philos[0]->info->finish_line)
 				++count;
-			if (count == info->num_of_philos)
+			if (count == philos[0]->info->num_of_philos)
 			{
 				printf("Finally, we fed all philosophers %d meals. Hurray!\n", \
-				info->finish_line);
-				return ;
+				philos[0]->info->finish_line);
+				return (NULL);
 			}
 		}
 	}
@@ -68,6 +70,7 @@ int	lets_feed_philos(t_info *info, t_philo **philos)
 {
 	int				status;
 	int				index;
+	pthread_t 		beholder;
 
 	index = -1;
 	status = init_philos(info, philos);
@@ -76,13 +79,19 @@ int	lets_feed_philos(t_info *info, t_philo **philos)
 	status = init_forks(info);
 	if (status != SUCCESS)
 		return (status);
+	pthread_create(&beholder, NULL, eye_of_beholder, philos);
 	while (++index < info->num_of_philos)
 	{
 		status = pthread_create(&(*philos)[index].thread, NULL, \
 			life_of_philosophers, &(*philos)[index]);
 		if (status != SUCCESS)
 			return (PTHREAD_CREATE_FAILURE);
-		status = pthread_detach((*philos)[index].thread);
+	}
+	index = -1;
+	pthread_join(beholder, NULL);
+	while (++index < info->num_of_philos)
+	{
+		status = pthread_join((*philos)[index].thread, NULL);
 		if (status != SUCCESS)
 			return (PTHREAD_DETACH_FAILURE);
 	}
@@ -103,7 +112,7 @@ int	main(int ac, char **av)
 	status = lets_feed_philos(&info, &philos);
 	if (status != SUCCESS)
 		return (err_msg(status));
-	eye_of_beholder(&info, &philos);
+//	eye_of_beholder(&philos);
 	free_all(&info, &philos);
 	return (0);
 }
