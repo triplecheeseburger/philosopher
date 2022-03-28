@@ -27,7 +27,7 @@ void	declare(t_status status, t_philo *philo)
 		printf("%ld %d is sleeping\n", timestamp, philo->backnumber);
 	else if (status == THINK && philo->info->casualty == 0)
 		printf("%ld %d is thinking\n", timestamp, philo->backnumber);
-	else if (status == DEAD && philo->info->casualty == 0)
+	else if (status == DEAD)
 		printf("%ld %d is died\n", timestamp, philo->backnumber);
 	pthread_mutex_unlock(&philo->info->deadcheck);
 	pthread_mutex_unlock(&philo->info->print);

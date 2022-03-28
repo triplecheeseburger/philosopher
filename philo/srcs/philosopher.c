@@ -22,11 +22,11 @@ void	roll_call(t_info *info, t_philo **philos)
 		if (get_current_time() - (*philos)[index].last_time_i_ate \
 			> info->time_to_die)
 		{
-			(*philos)[index].is_alive = FALSE;
-			declare(DEAD, &(*philos)[index]);
 			pthread_mutex_lock(&info->deadcheck);
 			info->casualty += 1;
 			pthread_mutex_unlock(&info->deadcheck);
+			(*philos)[index].is_alive = FALSE;
+			declare(DEAD, &(*philos)[index]);
 			pthread_mutex_unlock(&info->forks[(*philos)[index].left_fork]);
 			pthread_mutex_unlock(&info->forks[(*philos)[index].right_fork]);
 			return ;
