@@ -12,7 +12,7 @@
 
 #include "philosopher.h"
 
-void	roll_call(t_info *info, t_philo **philos)
+int	roll_call(t_info *info, t_philo **philos)
 {
 	int	index;
 
@@ -27,12 +27,14 @@ void	roll_call(t_info *info, t_philo **philos)
 			pthread_mutex_unlock(&info->deadcheck);
 			(*philos)[index].is_alive = FALSE;
 			declare(DEAD, &(*philos)[index]);
+			printf("Sadly, we failed to fed philosophers. One is dead!\n");
 			pthread_mutex_unlock(&info->forks[(*philos)[index].left_fork]);
 			pthread_mutex_unlock(&info->forks[(*philos)[index].right_fork]);
-			return ;
+			return (DEAD);
 		}
 		++index;
 	}
+	return (THINK);
 }
 
 void	eye_of_beholder(t_info *info, t_philo **philos)
@@ -42,12 +44,8 @@ void	eye_of_beholder(t_info *info, t_philo **philos)
 
 	while (1)
 	{
-		roll_call(info, philos);
-		if (anyone_dead(info) == DEAD)
-		{
-			printf("Sadly, we failed to fed philosophers. One is dead!\n");
+		if (roll_call(info, philos) == DEAD)
 			return ;
-		}
 		index = 0;
 		count = 0;
 		while (index < info->num_of_philos)
@@ -56,6 +54,9 @@ void	eye_of_beholder(t_info *info, t_philo **philos)
 				++count;
 			if (count == info->num_of_philos)
 			{
+				pthread_mutex_lock(&info->deadcheck);
+				info->casualty += 1;
+				pthread_mutex_unlock(&info->deadcheck);
 				printf("Finally, we fed all philosophers %d meals. Hurray!\n", \
 				info->finish_line);
 				return ;
@@ -105,6 +106,5 @@ int	main(int ac, char **av)
 		return (err_msg(status));
 	eye_of_beholder(&info, &philos);
 	free_all(&info, philos);
-	system("leaks philo");
 	return (0);
 }

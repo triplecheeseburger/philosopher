@@ -38,7 +38,6 @@ int	free_all(t_info *info, t_philo *philos)
 {
 	int	i;
 
-//	usleep(1000);
 	i = -1;
 	while (++i < info->num_of_philos)
 	{
@@ -59,7 +58,6 @@ int	free_all(t_info *info, t_philo *philos)
 		pthread_mutex_destroy(&info->deadcheck);
 	}
 	free(info->forks);
-	usleep(1000);
 	free(philos);
 	return (SUCCESS);
 }
@@ -67,7 +65,7 @@ int	free_all(t_info *info, t_philo *philos)
 int	anyone_dead(t_info *info)
 {
 	pthread_mutex_lock(&info->deadcheck);
-	if (info->casualty > 0)
+	if (info->casualty != 0)
 	{
 		pthread_mutex_unlock(&info->deadcheck);
 		return (DEAD);
