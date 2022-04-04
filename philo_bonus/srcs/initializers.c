@@ -36,7 +36,21 @@ int	init_info(int ac, char **av, t_info *info)
 	if (info->time_of_start == GETTIME_FAILURE)
 		return (GETTIME_FAILURE);
 	info->casualty = 0;
+	info->full_philos = 0;
 	return (SUCCESS);
+}
+
+sem_t	*init_semaphore(char *label, int num)
+{
+	sem_t	*semaphore;
+
+	semaphore = sem_open(label, O_CREAT | O_EXCL, 0644, (unsigned int)num);
+	if (semaphore == SEM_FAILED)
+	{
+		sem_unlink(label);
+		semaphore = sem_open(label, O_CREAT | O_EXCL, 0644, (unsigned int)num);
+	}
+	return (semaphore);
 }
 
 int	init_philos(t_info *info, t_philo **philos)
@@ -56,7 +70,6 @@ int	init_philos(t_info *info, t_philo **philos)
 		(*philos)[index].last_time_i_ate = info->time_of_start;
 		(*philos)[index].is_alive = TRUE;
 		(*philos)[index].info = info;
-		(*philos)[index].thread = NULL;
 		++index;
 	}
 	(*philos)[index - 1].right_fork = 0;
@@ -65,16 +78,14 @@ int	init_philos(t_info *info, t_philo **philos)
 
 int	init_forks(t_info *info)
 {
-	int	index;
-
-	info->forks = malloc(sizeof(pthread_mutex_t) * info->num_of_philos);
-	if (info->forks == NULL)
-		return (MALLOC_FAILURE);
-	index = -1;
-	while (++index < info->num_of_philos)
-		if (pthread_mutex_init(&info->forks[index], NULL) != 0)
-			return (MUTEX_INIT_FAILURE);
-	if (pthread_mutex_init(&info->print, NULL) != 0)
-		return (MUTEX_INIT_FAILURE);
+	info->forks = init_semaphore("forks", info->num_of_philos);
+	if (info->forks == SEM_FAILED)
+		return (SEM_FAILURE);
+	info->print = init_semaphore("print", 1);
+	if (info->print == SEM_FAILED)
+		return (SEM_FAILURE);
+	info->deadcheck = init_semaphore("deadcheck", 1);
+	if (info->deadcheck == SEM_FAILED)
+		return (SEM_FAILURE);
 	return (SUCCESS);
 }

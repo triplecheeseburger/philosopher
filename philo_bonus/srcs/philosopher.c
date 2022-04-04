@@ -12,7 +12,7 @@
 
 #include "philosopher.h"
 
-void	roll_call(t_info *info, t_philo **philos)
+int	roll_call(t_info *info, t_philo **philos)
 {
 	int	index;
 
@@ -20,46 +20,49 @@ void	roll_call(t_info *info, t_philo **philos)
 	while (index < info->num_of_philos)
 	{
 		if (get_current_time() - (*philos)[index].last_time_i_ate \
-			> (*philos)[index].info->time_to_die)
+			> info->time_to_die)
 		{
+			sem_wait(info->deadcheck);
+			info->casualty += 1;
+			sem_post(info->deadcheck);
 			(*philos)[index].is_alive = FALSE;
 			declare(DEAD, &(*philos)[index]);
-			(*philos)[index].info->casualty += 1;
-			pthread_mutex_unlock(&(*philos)[index].info->\
-				forks[(*philos)[index].left_fork]);
-			return ;
+			printf("Sadly, we failed to fed philosophers. One is dead!\n");
+			sem_post(info->forks);
+			sem_post(info->forks);
+			return (DEAD);
 		}
 		++index;
 	}
+	return (THINK);
 }
 
 void	eye_of_beholder(t_info *info, t_philo **philos)
 {
 	int	index;
-	int	count;
+	int	check;
 
-	while (1)
+	while (info->full_philos != info->finish_line)
 	{
-		roll_call(info, philos);
-		if (info->casualty > 0)
+		waitpid(-1, &check, 0);
+		if (WIFEXITED(check) && WEXITSTATUS(check) == DEAD)
 		{
-			printf("Sadly, we failed to fed philosophers. One is dead!\n");
-			return ;
+			info->casualty += 1;
+			break ;
 		}
-		index = 0;
-		count = 0;
-		while (index < info->num_of_philos)
-		{
-			if ((*philos)[index++].eatcount == info->finish_line)
-				++count;
-			if (count == info->num_of_philos)
-			{
-				printf("Finally, we fed all philosophers %d meals. Hurray!\n", \
-				info->finish_line);
-				return ;
-			}
-		}
+		else if (WIFEXITED(check) && WEXITSTATUS(check) == FULL)
+			info->full_philos += 1;
 	}
+	if (info->casualty != 0)
+	{
+		index = -1;
+		while (++index < info->num_of_philos)
+			kill((*philos)[index].pid, SIGTERM);
+		printf("Sadly, we failed to fed philosophers. One is dead!\n");
+	}
+	if (info->full_philos == info->finish_line && info->casualty == 0)
+		printf("Finally, we fed all philosophers %d meals. Hurray!\n", \
+			info->finish_line);
 }
 
 int	lets_feed_philos(t_info *info, t_philo **philos)
@@ -76,13 +79,11 @@ int	lets_feed_philos(t_info *info, t_philo **philos)
 		return (status);
 	while (++index < info->num_of_philos)
 	{
-		status = pthread_create(&(*philos)[index].thread, NULL, \
-			life_of_philosophers, &(*philos)[index]);
-		if (status != SUCCESS)
-			return (PTHREAD_CREATE_FAILURE);
-		status = pthread_detach((*philos)[index].thread);
-		if (status != SUCCESS)
-			return (PTHREAD_DETACH_FAILURE);
+		(*philos)[index].pid = fork();
+		if ((*philos)[index].pid == 0)
+			life_of_philosophers(&(*philos)[index]);
+		else if ((*philos)[index].pid < 0)
+			return (FORK_FAILURE);
 	}
 	return (0);
 }
@@ -102,6 +103,6 @@ int	main(int ac, char **av)
 	if (status != SUCCESS)
 		return (err_msg(status));
 	eye_of_beholder(&info, &philos);
-	free_all(&info, &philos);
+	free_all(&info, philos);
 	return (0);
 }

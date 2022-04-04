@@ -6,7 +6,7 @@
 /*   By: hakim <hakim@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/27 16:54:04 by hakim             #+#    #+#             */
-/*   Updated: 2022/03/27 16:54:05 by hakim            ###   ########.fr       */
+/*   Updated: 2022/03/28 20:01:19 by hakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,16 +34,31 @@ void	kill_time(long time)
 		usleep(50);
 }
 
-int	free_all(t_info *info, t_philo **philos)
+int	free_all(t_info *info, t_philo *philos)
 {
 	int	i;
 
-	usleep(1000);
 	i = -1;
 	while (++i < info->num_of_philos)
-		pthread_mutex_destroy(&info->forks[i]);
-	pthread_mutex_destroy(&info->print);
-	free(*philos);
-	free(info->forks);
+		kill(philos[i].pid, SIGTERM);
+	sem_close(info->forks);
+	sem_unlink("fork");
+	sem_close(info->print);
+	sem_unlink("print");
+	sem_close(info->deadcheck);
+	sem_unlink("deadcheck");
+	free(philos);
 	return (SUCCESS);
+}
+
+int	anyone_dead(t_info *info)
+{
+	sem_wait(info->deadcheck);
+	if (info->casualty != 0)
+	{
+		sem_post(info->deadcheck);
+		return (DEAD);
+	}
+	sem_post(info->deadcheck);
+	return (THINK);
 }

@@ -17,8 +17,8 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <sys/time.h>
+# include <semaphore.h>
 # include <signal.h>
-# include <pthread.h>
 
 # define TRUE 0
 # define FALSE 1
@@ -34,8 +34,10 @@ typedef struct s_info
 	int				finish_line;
 	long			time_of_start;
 	int				casualty;
-	pthread_mutex_t	print;
-	pthread_mutex_t	*forks;
+	int				full_philos;
+	sem_t			*print;
+	sem_t			*deadcheck;
+	sem_t			*forks;
 }	t_info;
 
 typedef struct s_philo
@@ -46,8 +48,8 @@ typedef struct s_philo
 	int			right_fork;
 	int			is_alive;
 	long		last_time_i_ate;
+	pid_t		pid;
 	t_info		*info;
-	pthread_t	thread;
 }	t_philo;
 
 typedef enum e_status
@@ -56,7 +58,8 @@ typedef enum e_status
 	EAT,
 	SLEEP,
 	THINK,
-	DEAD
+	DEAD,
+	FULL
 }	t_status;
 
 typedef enum e_failure
@@ -67,9 +70,8 @@ typedef enum e_failure
 	NON_NUMERIC_ARGS,
 	NON_POSITIVE_NUMERICS,
 	MALLOC_FAILURE,
-	MUTEX_INIT_FAILURE,
-	PTHREAD_CREATE_FAILURE,
-	PTHREAD_DETACH_FAILURE,
+	SEM_FAILURE,
+	FORK_FAILURE,
 	GETTIME_FAILURE = -42
 }	t_failure;
 
@@ -79,10 +81,11 @@ int		init_forks(t_info *info);
 int		ft_atoi(const char *str);
 int		can_be_atoied(char *str);
 int		err_msg(t_failure failure);
-int		free_all(t_info *info, t_philo **philos);
+int		free_all(t_info *info, t_philo *philos);
+int		anyone_dead(t_info *info);
+int		life_of_philosophers(void *arg);
 long	get_current_time(void);
 void	kill_time(long time);
 void	ft_putendl_fd(char *s, int fd);
 void	declare(t_status status, t_philo *philo);
-void	*life_of_philosophers(void *arg);
 #endif

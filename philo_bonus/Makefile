@@ -13,7 +13,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 
-NAME = philo
+NAME = philo_bonus
 SRCS =	srcs/philosopher.c \
 		srcs/life_of_philosophers.c \
         srcs/initializers.c \

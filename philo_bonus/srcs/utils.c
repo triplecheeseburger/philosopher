@@ -93,13 +93,10 @@ int	err_msg(t_failure failure)
 		ft_putendl_fd("Malloc seems to be failed on some point", 2);
 	else
 	{
-		write(2, "Unfortunately, ", 15);
-		if (failure == MUTEX_INIT_FAILURE)
-			write(2, "pthread_mutex_init", 18);
-		else if (failure == PTHREAD_CREATE_FAILURE)
-			write(2, "pthread_create", 14);
-		else if (failure == PTHREAD_DETACH_FAILURE)
-			write(2, "pthread_detach", 14);
+		if (failure == SEM_FAILURE)
+			write(2, "sem_open", 8);
+		else if (failure == FORK_FAILURE)
+			write(2, "fork", 4);
 		else if (failure == GETTIME_FAILURE)
 			write(2, "gettimeofday", 12);
 		ft_putendl_fd(" function have been failed", 2);
