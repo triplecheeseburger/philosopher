@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosopher.h"
+#include "philosopher_bonus.h"
 
 void	declare(t_status status, t_philo *philo)
 {
@@ -36,6 +36,9 @@ void	declare(t_status status, t_philo *philo)
 
 static int	therefore_i_eat(t_philo *philo)
 {
+	if (get_current_time() - philo->last_time_i_ate \
+			> philo->info->time_to_die)
+		return (DEAD);
 	sem_wait(philo->info->forks);
 	declare(FORK, philo);
 	sem_wait(philo->info->forks);
