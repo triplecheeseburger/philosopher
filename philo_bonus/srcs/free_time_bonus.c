@@ -50,15 +50,3 @@ int	free_all(t_info *info, t_philo *philos)
 	free(philos);
 	return (SUCCESS);
 }
-
-int	anyone_dead(t_info *info)
-{
-	sem_wait(info->deadcheck);
-	if (info->casualty != 0)
-	{
-		sem_post(info->deadcheck);
-		return (DEAD);
-	}
-	sem_post(info->deadcheck);
-	return (THINK);
-}

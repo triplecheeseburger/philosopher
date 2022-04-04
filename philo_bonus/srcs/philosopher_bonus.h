@@ -19,6 +19,7 @@
 # include <sys/time.h>
 # include <semaphore.h>
 # include <signal.h>
+# include <pthread.h>
 
 # define TRUE 0
 # define FALSE 1
@@ -44,9 +45,6 @@ typedef struct s_philo
 {
 	int			backnumber;
 	int			eatcount;
-	int			left_fork;
-	int			right_fork;
-	int			is_alive;
 	long		last_time_i_ate;
 	pid_t		pid;
 	t_info		*info;

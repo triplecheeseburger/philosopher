@@ -12,37 +12,12 @@
 
 #include "philosopher_bonus.h"
 
-int	roll_call(t_info *info, t_philo **philos)
-{
-	int	index;
-
-	index = 0;
-	while (index < info->num_of_philos)
-	{
-		if (get_current_time() - (*philos)[index].last_time_i_ate \
-			> info->time_to_die)
-		{
-			sem_wait(info->deadcheck);
-			info->casualty += 1;
-			sem_post(info->deadcheck);
-			(*philos)[index].is_alive = FALSE;
-			declare(DEAD, &(*philos)[index]);
-			printf("Sadly, we failed to fed philosophers. One is dead!\n");
-			sem_post(info->forks);
-			sem_post(info->forks);
-			return (DEAD);
-		}
-		++index;
-	}
-	return (THINK);
-}
-
 void	eye_of_beholder(t_info *info, t_philo **philos)
 {
 	int	index;
 	int	check;
 
-	while (info->full_philos != info->finish_line)
+	while (info->full_philos != info->num_of_philos)
 	{
 		waitpid(-1, &check, 0);
 		if (WIFEXITED(check) && WEXITSTATUS(check) == DEAD)
@@ -60,7 +35,7 @@ void	eye_of_beholder(t_info *info, t_philo **philos)
 			kill((*philos)[index].pid, SIGTERM);
 		printf("Sadly, we failed to fed philosophers. One is dead!\n");
 	}
-	if (info->full_philos == info->finish_line && info->casualty == 0)
+	if (info->full_philos == info->num_of_philos && info->casualty == 0)
 		printf("Finally, we fed all philosophers %d meals. Hurray!\n", \
 			info->finish_line);
 }

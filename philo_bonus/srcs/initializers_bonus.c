@@ -65,14 +65,10 @@ int	init_philos(t_info *info, t_philo **philos)
 	{
 		(*philos)[index].backnumber = index;
 		(*philos)[index].eatcount = 0;
-		(*philos)[index].left_fork = index;
-		(*philos)[index].right_fork = index + 1;
 		(*philos)[index].last_time_i_ate = info->time_of_start;
-		(*philos)[index].is_alive = TRUE;
 		(*philos)[index].info = info;
 		++index;
 	}
-	(*philos)[index - 1].right_fork = 0;
 	return (SUCCESS);
 }
 

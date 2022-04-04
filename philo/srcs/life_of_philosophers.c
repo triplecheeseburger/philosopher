@@ -71,7 +71,7 @@ void	*life_of_philosophers(void *arg)
 
 	philo = (t_philo *)arg;
 	if (philo->backnumber % 2 == 0)
-		kill_time(philo->info->time_to_sleep - 1);
+		kill_time(philo->info->time_to_eat - 10);
 	while (philo->eatcount != philo->info->finish_line)
 	{
 		if (anyone_dead(philo->info) == DEAD)
